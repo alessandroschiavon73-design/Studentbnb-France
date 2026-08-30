@@ -1,0 +1,8 @@
+STUDENTBNB FR - CREDITI CARTOGRAFICI
+
+Cartina nazionale: Illustrazione originale StudentBnB, realizzata sul modello grafico della cartina del portale italiano
+Autore: StudentBnB
+Licenza: Asset originale del progetto; nessun elemento cartografico di terzi incorporato.
+Utilizzo nel portale: file country-map.webp visualizzato con indicatori HTML separati per le città universitarie.
+
+Le bandiere nazionali sono icone SVG geometriche realizzate per l'interfaccia StudentBnB.
