@@ -122,6 +122,10 @@ window.STUDENTBNB_CONFIG = {"appName":"StudentBnB","brandLine":"Base & Belong","
     renderDualFooter();
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyPortalNavigation);
-  else applyPortalNavigation();
+  function applyAfterBranding() {
+    window.setTimeout(applyPortalNavigation, 0);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyAfterBranding);
+  else applyAfterBranding();
 })();
