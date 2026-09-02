@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://studentbnb.fr/</loc></url>
-  <url><loc>https://studentbnb.fr/ville.html</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=lille</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=paris</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=rennes</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=nantes</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=lyon</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=bordeaux</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=toulouse</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=montpellier</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=nancy</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=strasbourg</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=grenoble</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=nice</loc></url>
+  <url><loc>https://studentbnb.fr/ville.html?city=marseille-aix-en-provence</loc></url>
   <url><loc>https://studentbnb.fr/publier.html</loc></url>
   <url><loc>https://studentbnb.fr/je-cherche.html</loc></url>
   <url><loc>https://studentbnb.fr/etudiants.html</loc></url>

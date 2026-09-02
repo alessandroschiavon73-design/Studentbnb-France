@@ -69,3 +69,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   const intl=document.querySelector('.footer-international > strong');if(intl)intl.textContent='Pour les séjours plus longs : CasaStudent';const copy=document.querySelector('.footer-bottom span:first-child');if(copy)copy.textContent='© 2026 StudentBnB';const login=document.querySelector('#login-title');if(login)login.textContent='Se connecter à StudentBnB';
   const f=document.querySelector('.site-footer .container')||document.querySelector('footer');if(f&&!f.querySelector('.casastudent-family')){const b=document.createElement('div');b.className='casastudent-family';b.innerHTML='StudentBnB est dédié aux séjours temporaires au sein de la communauté étudiante. Pour un logement plus durable, consultez <a href="https://casastudent.fr/">CasaStudent ↗</a>.';f.appendChild(b)}
 });
+
+(function(){
+  const apply=()=>{
+    const canonical=document.querySelector('link[rel="canonical"]')?.href||location.href;
+    const description=document.querySelector('meta[name="description"]')?.content||'';
+    let schema=document.querySelector('#studentbnb-webpage-schema');
+    if(!schema){schema=document.createElement('script');schema.id='studentbnb-webpage-schema';schema.type='application/ld+json';document.head.appendChild(schema);}
+    schema.textContent=JSON.stringify({'@context':'https://schema.org','@type':'WebPage',name:document.title,url:canonical,description,inLanguage:document.documentElement.lang||'fr-FR'});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(apply,0));else setTimeout(apply,0);
+})();

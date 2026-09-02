@@ -28,6 +28,15 @@
     return new Intl.NumberFormat(cfg.locale, { style: "currency", currency: cfg.currency, maximumFractionDigits: 0 }).format(Number(value || 0));
   }
 
+  function testStayPrices(record) {
+    const positive = (...values) => values.map(Number).find((value) => Number.isFinite(value) && value > 0);
+    const monthly = positive(record.monthly_reference_price, record.price) ?? 0;
+    const p30 = positive(record.studentbnbPrice30, record.studentbnb_price_30) ?? Math.round(monthly * 1.25);
+    const p14 = positive(record.studentbnbPrice14, record.studentbnb_price_14) ?? Math.round(p30 / 2);
+    const p7 = positive(record.studentbnbPrice7, record.studentbnb_price_7) ?? Math.round(p30 / 4);
+    return { p7, p14, p30, monthly };
+  }
+
   function cityById(id) {
     return data.cities.find((city) => city.id === id || city.slug === id) || data.cities[0];
   }
@@ -145,15 +154,16 @@
 
   function listingCard(record) {
     const city = cityById(record.city_id);
+    const stayPrices = testStayPrices(record);
     const article = document.createElement("article");
     article.className = "listing-card";
     article.dataset.city = record.city_id;
     article.dataset.type = record.type;
-    article.dataset.price = record.price;
+    article.dataset.price = stayPrices.p7;
     article.innerHTML = `
       <a href="${cfg.routes.listing}?id=${encodeURIComponent(record.id)}"><img class="listing-image" src="${record.image}" alt="${record.title}"></a>
-      <div class="listing-main"><div class="listing-title-row"><h3><a href="${cfg.routes.listing}?id=${encodeURIComponent(record.id)}">${record.title}</a></h3>${record.is_demo ? `<span class="demo-badge">${demoText.badge}</span>` : `<span class="verification-badge">✓ ${text("verifiedEmail")}</span>`}</div><div class="listing-meta"><span>⌖ ${city.name} · ${record.district_name}</span><span>▣ ${record.available_from}</span></div><div class="listing-submeta"><span>${record.arrangement}</span><span>${record.minimum_stay}</span></div></div>
-      <div class="listing-price"><div class="price">${formatMoney(record.price)} <small>/${text("monthShort")}</small></div><span class="expenses-badge ${record.expenses_included ? "included" : "excluded"}">${record.expenses_included ? text("expensesIncluded") : text("expensesExcluded")}</span></div>
+      <div class="listing-main"><div class="listing-title-row"><h3><a href="${cfg.routes.listing}?id=${encodeURIComponent(record.id)}">${record.title}</a></h3>${record.is_demo ? `<span class="demo-badge">${demoText.badge}</span>` : `<span class="verification-badge">✓ ${text("verifiedEmail")}</span>`}</div><div class="listing-meta"><span>⌖ ${city.name} · ${record.district_name}</span><span>▣ ${record.available_from}</span></div><div class="listing-submeta"><span>${record.arrangement}</span><span>1 semaine · 2 semaines · 1 mois</span></div></div>
+      <div class="listing-price"><div class="price">${formatMoney(stayPrices.p7)} <small>/7 jours</small></div><div class="test-price-breakdown"><span>14 jours ${formatMoney(stayPrices.p14)}</span><span>30 jours ${formatMoney(stayPrices.p30)}</span></div><span class="expenses-badge ${record.expenses_included ? "included" : "excluded"}">${record.expenses_included ? text("expensesIncluded") : text("expensesExcluded")}</span></div>
       <div class="listing-actions"><button class="favorite-button" type="button" aria-label="${text("favorite")}">♡</button></div>`;
     q(".favorite-button", article).addEventListener("click", (event) => {
       const button = event.currentTarget;
@@ -175,9 +185,10 @@
     populateDistricts(citySelect, zoneSelect, true);
     q("#city-name").textContent = selectedCity.name;
     q("#city-region").textContent = selectedCity.region;
-    q("#city-description").textContent = selectedCity.description;
-    document.title = `${selectedCity.name} | CasaStudent`;
-    window.StudentBnBSEO?.update({title:document.title,description:selectedCity.description});
+    const cityDescription = `${selectedCity.name} : teste le logement, le quartier et la vie avec les colocataires pendant une semaine, deux semaines ou un mois avant de choisir.`;
+    q("#city-description").textContent = cityDescription;
+    document.title = `${selectedCity.name} — séjour étudiant 1 semaine, 2 semaines ou 1 mois | StudentBnB`;
+    window.StudentBnBSEO?.update({title:document.title,description:cityDescription});
     const hero = q("#city-hero-bg");
     if (hero) hero.style.backgroundImage = `url('${selectedCity.image}')`;
     if (params.get("type") && q("#filter-type")) q("#filter-type").value = params.get("type");
@@ -188,7 +199,7 @@
       const typeValue = q("#filter-type").value;
       const maxPrice = Number(q("#filter-price").value || Infinity);
       const records = [...data.listings, ...api.read("listings", [])].filter((record) =>
-        (!cityId || record.city_id === cityId) && (!zone || record.district_id === zone) && (!typeValue || record.type === typeValue) && Number(record.price) <= maxPrice
+        (!cityId || record.city_id === cityId) && (!zone || record.district_id === zone) && (!typeValue || record.type === typeValue) && testStayPrices(record).p7 <= maxPrice
       );
       list.innerHTML = "";
       records.forEach((record) => list.appendChild(listingCard(record)));
@@ -205,17 +216,18 @@
     const id = new URLSearchParams(location.search).get("id");
     const record = [...data.listings, ...api.read("listings", [])].find((item) => item.id === id) || data.listings[0];
     const city = cityById(record.city_id);
+    const stayPrices = testStayPrices(record);
     const robots = document.head.querySelector('meta[name="robots"]');
     if (robots && record.is_demo) robots.content = "noindex,follow";
-    document.title = `${record.title} | CasaStudent`;
+    document.title = `${record.title} | StudentBnB`;
     window.StudentBnBSEO?.update({title:document.title,description:record.description});
     q("#listing-title").textContent = record.title;
     q("#listing-place").textContent = `${city.name} · ${record.district_name}`;
-    q("#listing-price").textContent = formatMoney(record.price);
+    q("#listing-price").innerHTML = `${formatMoney(stayPrices.p7)} <small>/7 jours</small><span class="detail-test-prices"><span>14 jours ${formatMoney(stayPrices.p14)}</span><span>30 jours ${formatMoney(stayPrices.p30)}</span></span><span class="monthly-reference">Référence mensuelle: ${formatMoney(stayPrices.monthly)}</span>`;
     q("#listing-description").textContent = record.description;
     q("#listing-costs").textContent = record.expenses_included ? text("expensesIncludedLong") : `${text("expensesExcludedLong")} ${formatMoney(record.expenses_amount || 0)}`;
     q("#listing-availability").textContent = record.available_from;
-    q("#listing-minimum").textContent = record.minimum_stay;
+    q("#listing-minimum").textContent = "1 semaine · 2 semaines · 1 mois";
     q("#listing-deposit").textContent = formatMoney(record.deposit || 0);
     q("#listing-main-image").src = record.image;
     qa("[data-gallery-image]").forEach((img, index) => { img.src = record.images[index % record.images.length]; });
@@ -249,6 +261,11 @@
       city_id: raw.city,
       district_id: raw.zone || null,
       price: raw.price ? Number(raw.price) : undefined,
+      monthly_reference_price: raw.price ? Number(raw.price) : undefined,
+      studentbnb_price_7: raw.studentbnbPrice7 ? Number(raw.studentbnbPrice7) : undefined,
+      studentbnb_price_14: raw.studentbnbPrice14 ? Number(raw.studentbnbPrice14) : undefined,
+      studentbnb_price_30: raw.studentbnbPrice30 ? Number(raw.studentbnbPrice30) : undefined,
+      studentbnb_uplift_percent: raw.studentbnbUplift ? Number(raw.studentbnbUplift) : 25,
       budget_max: raw.budget ? Number(raw.budget) : undefined,
       currency: cfg.currency,
       source_domain: cfg.domain,
